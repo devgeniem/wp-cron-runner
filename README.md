@@ -8,6 +8,16 @@
 
 This simple mu-plugin lets you run WordPress cron jobs for a site or all network sites via a single endpoint. This is useful when building a single solution to run WP cron jobs on a hosting platform for different type of WordPress installations.
 
+## Installation
+
+Install the plugin with Composer. It requires the [Bedrock mu-plugins autoloader](https://roots.io/bedrock/docs/mu-plugins-autoloader/).
+
+```
+composer require devgeniem/wp-cron-runner
+```
+
+Or install the plugin manually by copying the `plugin.php` under your mu-plugin directory and renaming it to `wp-cron-runner.php`.
+
 ## Usage
 
 This plugin defines a single endpoint to run WP crons.

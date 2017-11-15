@@ -52,7 +52,7 @@ if ( $request_uri === '/run-cron' ) {
     ?>
     <h1>WP Cron was excecuted for sites:</h1>
     <?php
-    if ( $cron_excecuted ) {
+    if ( ! empty( $cron_excecuted ) ) {
         echo '<ul>';
         foreach ( $cron_excecuted as $exc_url ) {
             echo '<li>' . esc_url( $exc_url ) . '</li>';
@@ -83,7 +83,8 @@ function run_cron( $home_url ) {
         'sslverify'   => false,
     );
     $cron_url = $home_url . '/wp-cron.php';
-    return wp_remote_get( $cron_url, $args );
+    $response = wp_remote_get( $cron_url, $args );
+    return $response;
 }
 
 /**
@@ -98,16 +99,16 @@ function require_auth() {
         return;
     }
 
-    $has_supplied_credentials = ! ( empty( $_SERVER['PHP_AUTH_USER'] ) && empty( $_SERVER['PHP_AUTH_PW'] ) );
-    $is_not_authenticated = (
-        ! $has_supplied_credentials ||
+    $not_authenticated = (
+        empty( $_SERVER['PHP_AUTH_USER'] ) ||
+        empty( $_SERVER['PHP_AUTH_PW'] ) ||
         $_SERVER['PHP_AUTH_USER'] !== $user ||
         $_SERVER['PHP_AUTH_PW'] !== $pw
     );
-    if ( $is_not_authenticated ) {
+
+    if ( $not_authenticated ) {
         header( 'HTTP/1.1 401 Authorization Required' );
         header( 'WWW-Authenticate: Basic realm="Access denied"' );
         exit;
     }
-
 }
