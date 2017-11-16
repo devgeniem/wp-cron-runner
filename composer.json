@@ -1,0 +1,22 @@
+{
+    "name": "devgeniem/wp-cron-runner",
+    "type": "wordpress-muplugin",
+    "description": "This mu-plugin lets you run WP cron for a site / network site via a single endpoint.",
+    "authors": [
+        {
+            "name": "Ville Siltala",
+            "email": "ville.siltala@geniem.com",
+            "homepage": "http://geniem.com/",
+            "role": "Developer"
+        }
+    ],
+    "keywords": [
+        "wordpress", "mu-plugin", "cron", "wp-cron"
+    ],
+    "license": "GPL-3.0",
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.4",
+        "composer/installers": ">=1.0.12"
+    }
+}
