@@ -20,7 +20,7 @@ $request_uri = $_SERVER['REQUEST_URI'];
 // Remove the trailing forward slash.
 $request_uri = rtrim( $request_uri, '/' );
 
-// Excecute our plugin only on exact url match.
+// Execute our plugin only on exact url match.
 if ( $request_uri === '/run-cron' ) {
 
     // Basic auth might be needed.
@@ -33,10 +33,23 @@ if ( $request_uri === '/run-cron' ) {
         global $wpdb;
         $sql = $wpdb->prepare( "SELECT domain FROM $wpdb->blogs WHERE archived='0' AND deleted ='0' LIMIT 0,300", '' );
 
-        $blogs = $wpdb->get_results( $sql );
+        $results = $wpdb->get_results( $sql );
 
-        if ( is_array( $blogs ) ) {
-            foreach ( $blogs as $blog ) {
+        if ( is_wp_error( $results ) ) {
+            // A database error occurred.
+            wp_die(
+                $results->get_error_message(),
+                'WP Cron Runner',
+                [ 'response' => 500 ]
+            );
+        } elseif ( ! empty( $results ) ) {
+            foreach ( $results as $blog ) {
+
+                if ( empty( $blog->domain ) ) {
+                    // Skip invalid data.
+                    continue;
+                }
+
                 $home_url = $scheme . '://' . $blog->domain;
                 run_cron( $home_url );
                 $cron_excecuted[] = $home_url;
@@ -50,7 +63,7 @@ if ( $request_uri === '/run-cron' ) {
 
     ob_start();
     ?>
-    <h1>WP Cron was excecuted for sites:</h1>
+    <h1>WP Cron Runner executed for sites:</h1>
     <?php
     if ( ! empty( $cron_excecuted ) ) {
         echo '<ul>';
@@ -64,7 +77,11 @@ if ( $request_uri === '/run-cron' ) {
     ?>
     <?php
     // End the PHP process.
-    wp_die( ob_get_clean() );
+    wp_die(
+        ob_get_clean(),
+        'WP Cron Runner',
+        [ 'response' => 200 ]
+    );
 
 } // End if().
 
@@ -109,6 +126,10 @@ function require_auth() {
     if ( $not_authenticated ) {
         header( 'HTTP/1.1 401 Authorization Required' );
         header( 'WWW-Authenticate: Basic realm="Access denied"' );
-        exit;
+        wp_die(
+            'Access denied',
+            'WP Cron Runner',
+            [ 'response' => 401 ]
+        );
     }
 }
