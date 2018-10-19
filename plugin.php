@@ -12,6 +12,11 @@ namespace Geniem;
 
 use WP_Error;
 
+// Prevent invalid requests.
+if ( ! empty( $_POST ) || defined( 'DOING_AJAX' ) || defined( 'DOING_CRON' ) ) {
+    die();
+}
+
 // We would use filter_input() for this,
 // but it has a known bug on some PHP versions.
 // See: https://bugs.php.net/bug.php?id=49184
@@ -23,9 +28,6 @@ $request_uri = rtrim( $request_uri, '/' );
 // Execute our plugin only on exact url match.
 if ( $request_uri === '/run-cron' ) {
 
-    // Basic auth might be needed.
-    require_auth();
-
     $cron_excecuted = [];
     $scheme         = defined( 'REQUEST_SCHEME' ) ? REQUEST_SCHEME : 'https';
 
@@ -36,16 +38,19 @@ if ( $request_uri === '/run-cron' ) {
         $results = $wpdb->get_results( $sql );
 
         if ( is_wp_error( $results ) ) {
+
             // A database error occurred.
             wp_die(
                 $results->get_error_message(),
                 'WP Cron Runner',
                 [ 'response' => 500 ]
             );
-        } elseif ( ! empty( $results ) ) {
+        }
+        elseif ( ! empty( $results ) ) {
             foreach ( $results as $blog ) {
 
                 if ( empty( $blog->domain ) ) {
+
                     // Skip invalid data.
                     continue;
                 }
@@ -71,7 +76,8 @@ if ( $request_uri === '/run-cron' ) {
             echo '<li>' . esc_url( $exc_url ) . '</li>';
         }
         echo '</ul>';
-    } else {
+    }
+    else {
         echo '<strong>0 sites.</strong>';
     }
     ?>
@@ -95,16 +101,17 @@ function run_cron( $home_url ) {
     global $wp_version;
 
     $args = array(
-        'timeout'     => 10,
-        'user-agent'  => 'WordPress/' . $wp_version . '; ' . home_url(),
-        'blocking'    => true, // TODO
-        'sslverify'   => false,
+        'timeout'    => 10,
+        'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url(),
+        'blocking'   => true,
+        'sslverify'  => false,
     );
 
+    // If basic auth is used, define these constants.
     $user = defined( 'WP_CRON_RUNNER_AUTH_USER' ) ? WP_CRON_RUNNER_AUTH_USER : null;
     $pw   = defined( 'WP_CRON_RUNNER_AUTH_PW' ) ? WP_CRON_RUNNER_AUTH_PW : null;
 
-    if ( $user === null || $pw === null ) {
+    if ( ! empty( $user ) && ! empty( $pw ) ) {
 
         // Set basic auth.
         $args['headers']['Authorization'] = 'Basic ' . base64_encode( $user . ':' . $pw );
@@ -112,35 +119,6 @@ function run_cron( $home_url ) {
 
     $cron_url = $home_url . '/wp-cron.php';
     $response = wp_remote_get( $cron_url, $args );
+
     return $response;
-}
-
-/**
- * PHP basic auth checker for the plugin.
- */
-function require_auth() {
-    $user = defined( 'WP_CRON_RUNNER_AUTH_USER' ) ? WP_CRON_RUNNER_AUTH_USER : null;
-    $pw   = defined( 'WP_CRON_RUNNER_AUTH_PW' ) ? WP_CRON_RUNNER_AUTH_PW : null;
-
-    if ( $user === null || $pw === null ) {
-        // No auth.
-        return;
-    }
-
-    $not_authenticated = (
-        empty( $_SERVER['PHP_AUTH_USER'] ) ||
-        empty( $_SERVER['PHP_AUTH_PW'] ) ||
-        $_SERVER['PHP_AUTH_USER'] !== $user ||
-        $_SERVER['PHP_AUTH_PW'] !== $pw
-    );
-
-    if ( $not_authenticated ) {
-        header( 'HTTP/1.1 401 Authorization Required' );
-        header( 'WWW-Authenticate: Basic realm="Access denied"' );
-        wp_die(
-            'Access denied',
-            'WP Cron Runner',
-            [ 'response' => 401 ]
-        );
-    }
 }

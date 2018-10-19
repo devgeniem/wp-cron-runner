@@ -33,7 +33,7 @@ The plugin will exit WordPress execution after a successful request to the endpo
 
 ## Basic auth
 
-To restrict access to the plugin endpoint, define the following constants to enable basic auth:
+If you are using basic authentication define these constants.
 
 ```php
 // Username
