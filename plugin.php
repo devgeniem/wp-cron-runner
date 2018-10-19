@@ -93,12 +93,23 @@ if ( $request_uri === '/run-cron' ) {
  */
 function run_cron( $home_url ) {
     global $wp_version;
+
     $args = array(
         'timeout'     => 10,
         'user-agent'  => 'WordPress/' . $wp_version . '; ' . home_url(),
         'blocking'    => true, // TODO
         'sslverify'   => false,
     );
+
+    $user = defined( 'WP_CRON_RUNNER_AUTH_USER' ) ? WP_CRON_RUNNER_AUTH_USER : null;
+    $pw   = defined( 'WP_CRON_RUNNER_AUTH_PW' ) ? WP_CRON_RUNNER_AUTH_PW : null;
+
+    if ( $user === null || $pw === null ) {
+
+        // Set basic auth.
+        $args['headers']['Authorization'] = 'Basic ' . base64_encode( $user . ':' . $pw );
+    }
+
     $cron_url = $home_url . '/wp-cron.php';
     $response = wp_remote_get( $cron_url, $args );
     return $response;
