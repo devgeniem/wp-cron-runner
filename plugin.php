@@ -105,6 +105,7 @@ function run_cron( $home_url ) {
         'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url(),
         'blocking'   => true,
         'sslverify'  => false,
+        'headers'    => [],
     );
 
     // If basic auth is used, define these constants.
