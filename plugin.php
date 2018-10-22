@@ -12,11 +12,6 @@ namespace Geniem;
 
 use WP_Error;
 
-// Prevent invalid requests.
-if ( ! empty( $_POST ) || defined( 'DOING_AJAX' ) || defined( 'DOING_CRON' ) ) {
-    die();
-}
-
 // We would use filter_input() for this,
 // but it has a known bug on some PHP versions.
 // See: https://bugs.php.net/bug.php?id=49184
@@ -27,6 +22,11 @@ $request_uri = rtrim( $request_uri, '/' );
 
 // Execute our plugin only on exact url match.
 if ( $request_uri === '/run-cron' ) {
+
+    // Prevent invalid requests.
+    if ( ! empty( $_POST ) || defined( 'DOING_AJAX' ) || defined( 'DOING_CRON' ) ) {
+        die();
+    }
 
     $cron_excecuted = [];
     $scheme         = defined( 'REQUEST_SCHEME' ) ? REQUEST_SCHEME : 'https';
