@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Removed require_auth().
 - Added basic auth headers on wp_remote_get().
+- Added a message on invalid request.
 
 ## 1.0.0
 

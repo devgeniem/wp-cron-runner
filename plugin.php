@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  Cron Runner
  * Description:  This mu-plugin lets you run WP cron for a site / a network site via a single endpoint.
- * Version:      1.0.0
+ * Version:      1.0.1
  * Author:       Ville Siltala / Geniem Oy
  * Author URI:   https://www.geniem.fi/
  * License:      MIT License
@@ -25,7 +25,7 @@ if ( $request_uri === '/run-cron' ) {
 
     // Prevent invalid requests.
     if ( ! empty( $_POST ) || defined( 'DOING_AJAX' ) || defined( 'DOING_CRON' ) ) {
-        die();
+        die( 'WP Cron Runner: Invalid request.' );
     }
 
     $cron_excecuted = [];
