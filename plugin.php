@@ -114,11 +114,14 @@ function run_cron( $home_url ) {
 
     if ( ! empty( $user ) && ! empty( $pw ) ) {
 
+        // If using plain env strip plain from the basic auth password.
+        $pw = str_replace( '{PLAIN}', '', $pw );
+
         // Set basic auth.
         $args['headers']['Authorization'] = 'Basic ' . base64_encode( $user . ':' . $pw );
     }
 
-    $cron_url = $home_url . '/wp-cron.php';
+    $cron_url = $home_url . '/wp-cron.php';-
     $response = wp_remote_get( $cron_url, $args );
 
     return $response;
