@@ -2,8 +2,8 @@
 /**
  * Plugin Name:  Cron Runner
  * Description:  This mu-plugin lets you run WP cron for a site / a network site via a single endpoint.
- * Version:      1.0.2
- * Author:       Ville Siltala / Geniem Oy
+ * Version:      1.0.3
+ * Authors:      Ville Siltala & Ville Pietarinen / Geniem Oy
  * Author URI:   https://www.geniem.fi/
  * License:      MIT License
  */
@@ -31,9 +31,10 @@ if ( $request_uri === '/run-cron' ) {
     $cron_excecuted = [];
     $scheme         = defined( 'REQUEST_SCHEME' ) ? REQUEST_SCHEME : 'https';
 
+    // Multisite
     if ( defined( 'WP_ALLOW_MULTISITE' ) && WP_ALLOW_MULTISITE === true ) {
         global $wpdb;
-        $sql = $wpdb->prepare( "SELECT domain FROM $wpdb->blogs WHERE archived='0' AND deleted ='0' LIMIT 0,300", '' );
+        $sql = "SELECT domain, path FROM $wpdb->blogs WHERE archived=0 AND deleted=0";
 
         $results = $wpdb->get_results( $sql );
 
@@ -56,11 +57,17 @@ if ( $request_uri === '/run-cron' ) {
                 }
 
                 $home_url = $scheme . '://' . $blog->domain;
+                // Subfolder multisite needs path also
+                if ( $blog->path !== '/' ) {
+                    $home_url .= $blog->path;
+                }
                 run_cron( $home_url );
                 $cron_excecuted[] = $home_url;
             }
         }
-    } else {
+    }
+    // Single site
+    else {
         $home_url = get_home_url( null, '', $scheme );
         run_cron( $home_url );
         $cron_excecuted[] = $home_url;

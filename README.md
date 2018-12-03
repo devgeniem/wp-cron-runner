@@ -43,7 +43,7 @@ define( 'WP_CRON_RUNNER_AUTH_PW', 'pw' );
 ```
 
 ## Maintainers
-[@villesiltala](https://github.com/villesiltala)
+[@villesiltala](https://github.com/villesiltala) [@villepietarinen](https://github.com/villepietarinen)
 
 ## License
 GPLv3
