@@ -42,6 +42,8 @@ define( 'WP_CRON_RUNNER_AUTH_USER', 'username' );
 define( 'WP_CRON_RUNNER_AUTH_PW', 'pw' );
 ```
 
+Alternatively you can also use BASIC_AUTH_USER, BASIC_AUTH_PASSWORD and BASIC_AUTH_PASSWORD_HASH constants. When using the latter "{PLAIN}" is removed from the password string.
+
 ## Maintainers
 [@villesiltala](https://github.com/villesiltala) [@villepietarinen](https://github.com/villepietarinen)
 

@@ -119,6 +119,18 @@ function run_cron( $home_url ) {
     $user = defined( 'WP_CRON_RUNNER_AUTH_USER' ) ? WP_CRON_RUNNER_AUTH_USER : null;
     $pw   = defined( 'WP_CRON_RUNNER_AUTH_PW' ) ? WP_CRON_RUNNER_AUTH_PW : null;
 
+    if ( ! $user && defined( 'BASIC_AUTH_USER' ) ) {
+        $user = BASIC_AUTH_USER;
+    }
+
+    if ( ! $pw && defined( 'BASIC_AUTH_PASSWORD' ) ) {
+        $pw = BASIC_AUTH_PASSWORD;
+    }
+
+    if ( ! $pw && defined( 'BASIC_AUTH_PASSWORD_HASH' ) ) {
+        $pw = str_replace( '{PLAIN}', '', BASIC_AUTH_PASSWORD_HASH );
+    }
+
     if ( ! empty( $user ) && ! empty( $pw ) ) {
 
         // If using plain env strip plain from the basic auth password.
